@@ -41,7 +41,42 @@ def create_tables(connection):
         payment_method VARCHAR(50),                                                                                             FOREIGN KEY (user_id) REFERENCES users(user_id)                                                                     );
                                                                                                                             """
                                                                                                                             create_income_table = """
-                                                                                                                            CREATE TABLE IF NOT EXISTS income (
+cursor = connection.cursor()
+    cursor.execute(create_users_table)
+    cursor.execute(create_expenses_table)
+    cursor.execute(create_income_table)
+    connection.commit()
+
+def user_exists(connection, username, password):
+    cursor = connection.cursor()
+    cursor.execute("SELECT user_id FROM users WHERE username = %s AND password = %s", (username, password))
+    result = cursor.fetchone()
+    return result[0] if result else None
+
+def add_user(connection, username, email, password):
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                   (username, email, password))
+    connection.commit()
+    print("User registered successfully! Please log in to access all services.")
+
+def add_expense(connection, user_id, category, amount, date, description, payment_method):
+    try:
+        # Ensure the date is in the correct format
+        from datetime import datetime
+        datetime.strptime(date, '%Y-%m-%d')
+
+        cursor = connection.cursor()
+        cursor.execute("""
+        INSERT INTO expenses (user_id, category, amount, date, description, payment_method)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """, (user_id, category, amount, date, description, payment_method))
+        connection.commit()
+        print("Expense logged successfully!")
+    except ValueError:
+        print("Invalid date format. Please enter the date in the format YYYY-MM-DD.")
+    except mysql.connector.Error as err:
+        print(f"Error: {err}")                                                                                                                            CREATE TABLE IF NOT EXISTS income (
                                                                                                                                 income_id INT AUTO_INCREMENT PRIMARY KEY,
                                                                                                                                 user_id INT,
                                                                                                                                 source VARCHAR(50),
