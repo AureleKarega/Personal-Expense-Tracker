@@ -40,7 +40,6 @@ def create_tables(connection):
         description TEXT,
         payment_method VARCHAR(50),                                                                                             FOREIGN KEY (user_id) REFERENCES users(user_id)                                                                     );
                                                                                                                             """
-
                                                                                                                             create_income_table = """
                                                                                                                             CREATE TABLE IF NOT EXISTS income (
                                                                                                                                 income_id INT AUTO_INCREMENT PRIMARY KEY,
